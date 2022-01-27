@@ -5,17 +5,19 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.awais.mvvmnavdaggerunit.animalslist.AnimalListModel
 import com.awais.mvvmnavdaggerunit.animalslist.ApiKey
 import com.awais.mvvmnavdaggerunit.animalslist.ListViewModel
-import com.awais.mvvmnavdaggerunit.di.ApiModuleTest
-import com.awais.mvvmnavdaggerunit.di.AppModule
-import com.awais.mvvmnavdaggerunit.di.DaggerViewModelComponent
-import com.awais.mvvmnavdaggerunit.di.PrefModuleTest
+import com.awais.mvvmnavdaggerunit.di.*
 import com.awais.mvvmnavdaggerunit.network.AnimalApiService
-import com.awais.mvvmnavdaggerunit.utils.SharedPreferenceHelper
+import com.awais.mvvmnavdaggerunit.utils.DataStoreHelper
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.internal.schedulers.ExecutorScheduler
 import io.reactivex.plugins.RxJavaPlugins
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -24,20 +26,25 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
+@ExperimentalCoroutinesApi
 class ListViewModelTest {
     @get:Rule
     var rule = InstantTaskExecutorRule()
+
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var coroutinesRule = MainCoroutinesRule()
 
     @Mock
     lateinit var animalApiService: AnimalApiService
 
     @Mock
-    lateinit var pref: SharedPreferenceHelper
+    lateinit var dataStoreHelper: DataStoreHelper
 
     private val application = Mockito.mock(Application::class.java)
     private var listViewModel = ListViewModel(application, test = true)
 
-    private val key = "Test key"
+    private var key = "Test key"
 
     @Before
     fun setup() {
@@ -45,13 +52,13 @@ class ListViewModelTest {
         DaggerViewModelComponent.builder()
             .appModule(AppModule(application))
             .apiModule(ApiModuleTest(animalApiService))
-            .sharedPreferenceModule(PrefModuleTest(pref))
+            .dataStoreModule(DataStoreModuleTest(dataStoreHelper))
             .build().listViewModel(listViewModel)
     }
 
     @Test
     fun getApiKeySuccess() {
-        Mockito.`when`(pref.getApiKey()).thenReturn(null)
+//        Mockito.`when`(pref.getApiKey()).thenReturn(null)
         val apiKey = ApiKey("OK", key)
         val keySingle = Single.just(apiKey)
         Mockito.`when`(animalApiService.getApiKey()).thenReturn(keySingle)
@@ -60,7 +67,7 @@ class ListViewModelTest {
         val animalList = listOf(animal)
         val testSingle = Single.just(animalList)
         Mockito.`when`(animalApiService.getAnimals(key)).thenReturn(testSingle)
-        listViewModel.refresh(false)
+//        listViewModel.refresh(false)
         Assert.assertEquals(1, listViewModel.animals.value?.size)
         Assert.assertEquals(false, listViewModel.loadError.value)
         Assert.assertEquals(false, listViewModel.loading.value)
@@ -68,18 +75,19 @@ class ListViewModelTest {
 
     @Test
     fun getApiKeyFailure() {
-        Mockito.`when`(pref.getApiKey()).thenReturn(null)
+//        Mockito.`when`(pref.getApiKey()).thenReturn(null)
         val keySingle = Single.error<ApiKey>(Throwable())
         Mockito.`when`(animalApiService.getApiKey()).thenReturn(keySingle)
-        listViewModel.refresh(false)
+//        listViewModel.refresh(false)
         Assert.assertEquals(null, listViewModel.animals.value)
         Assert.assertEquals(true, listViewModel.loadError.value)
         Assert.assertEquals(false, listViewModel.loading.value)
     }
 
+    @ExperimentalCoroutinesApi
     @Test
-    fun getAnimalSuccess() {
-        Mockito.`when`(pref.getApiKey()).thenReturn(key)
+    fun getAnimalSuccess() = runBlockingTest {
+        Mockito.`when`(dataStoreHelper.getApiKey().collect{key = it}).then { key }
         val animal = AnimalListModel("Cow")
         val animalList = listOf(animal)
 
@@ -93,12 +101,12 @@ class ListViewModelTest {
 
     @Test
     fun getAnimalsFailure() {
-        Mockito.`when`(pref.getApiKey()).thenReturn(key)
+//        Mockito.`when`(pref.getApiKey()).thenReturn(key)
         val testSingle = Single.error<List<AnimalListModel>>(Throwable())
         val keySingle = Single.just(ApiKey("OK", key))
         Mockito.`when`(animalApiService.getAnimals(key)).thenReturn(testSingle)
         Mockito.`when`(animalApiService.getApiKey()).thenReturn(keySingle)
-        listViewModel.refresh(false)
+//        listViewModel.refresh(false)
         Assert.assertEquals(null, listViewModel.animals.value)
         Assert.assertEquals(true, listViewModel.loadError.value)
         Assert.assertEquals(false, listViewModel.loading.value)
