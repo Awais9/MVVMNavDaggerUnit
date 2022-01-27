@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="animalModel"
+            type="com.awais.mvvmnavdaggerunit.animalslist.AnimalListModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android.imageUrl="@{animalModel.imageUrl}"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="center"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            style="@style/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#afff"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@{animalModel.animalName}"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+</layout>
