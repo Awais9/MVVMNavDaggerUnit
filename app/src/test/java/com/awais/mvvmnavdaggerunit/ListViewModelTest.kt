@@ -36,13 +36,13 @@ class ListViewModelTest {
     var coroutinesRule = MainCoroutinesRule()
 
     @Mock
-    lateinit var animalApiService: AnimalApiService
+    private lateinit var animalApiService: AnimalApiService
 
     @Mock
-    lateinit var dataStoreHelper: DataStoreHelper
+    private lateinit var dataStoreHelper: DataStoreHelper
 
-    private val application = Mockito.mock(Application::class.java)
-    private var listViewModel = ListViewModel(application, test = true)
+    private var application = Mockito.mock(Application::class.java)
+    private var listViewModel = ListViewModel(application, true)
 
     private var key = "Test key"
 
@@ -87,7 +87,7 @@ class ListViewModelTest {
     @ExperimentalCoroutinesApi
     @Test
     fun getAnimalSuccess() = runBlockingTest {
-        Mockito.`when`(dataStoreHelper.getApiKey().collect{key = it}).then { key }
+        Mockito.`when`(dataStoreHelper.getApiKey().collect { key = it }).then { key }
         val animal = AnimalListModel("Cow")
         val animalList = listOf(animal)
 
