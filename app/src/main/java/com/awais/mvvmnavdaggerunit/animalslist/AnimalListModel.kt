@@ -12,15 +12,15 @@ data class ApiKey(
 @Parcelize
 data class AnimalListModel(
     @SerializedName("name")
-    val animalName: String?,
-    val taxonomy: Taxonomy?,
-    val location: String?,
-    val speed: Speed?,
-    val diet: String?,
+    val animalName: String? = null,
+    val taxonomy: Taxonomy? = null,
+    val location: String? = null,
+    val speed: Speed? = null,
+    val diet: String? = null,
     @SerializedName("lifespan")
-    val lifeSpan: String?,
+    val lifeSpan: String? = null,
     @SerializedName("image")
-    val imageUrl: String?
+    val imageUrl: String? = null
 ) : Parcelable
 
 @Parcelize

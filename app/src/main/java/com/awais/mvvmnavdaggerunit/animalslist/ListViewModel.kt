@@ -47,8 +47,8 @@ class ListViewModel(application: Application) : AndroidViewModel(application) {
         if (animals.value.isNullOrEmpty() || hardRefresh) {
             loading.value = true
             invalidKey = false
-            val key = sharedPreferenceHelper.getApiKey()!!
-            if (key.isEmpty()) {
+            val key = sharedPreferenceHelper.getApiKey()
+            if (key.isNullOrEmpty()) {
                 getKey()
             } else {
                 getAnimals(key)
@@ -98,6 +98,7 @@ class ListViewModel(application: Application) : AndroidViewModel(application) {
                             getKey()
                         } else {
                             loading.value = false
+                            animals.value = null
                             loadError.value = true
                         }
                     }
