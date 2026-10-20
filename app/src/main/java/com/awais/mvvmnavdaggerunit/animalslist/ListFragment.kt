@@ -5,10 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.awais.mvvmnavdaggerunit.base.BaseFragment
 import com.example.mvvmdagger2navigationunit.databinding.FragmentListBinding
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class ListFragment : BaseFragment<FragmentListBinding>() {
 
@@ -29,7 +32,9 @@ class ListFragment : BaseFragment<FragmentListBinding>() {
     }
 
     private fun callRefresh(hardRefresh: Boolean) {
-        viewModel.refresh(hardRefresh)
+        lifecycleScope.launch {
+            viewModel.refresh(hardRefresh)
+        }
     }
 
     private fun setObservers() {
